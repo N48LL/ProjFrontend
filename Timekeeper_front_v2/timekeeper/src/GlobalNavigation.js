@@ -1,7 +1,8 @@
 import React from 'react';
 
-
-class GlobalNavigation extends React.Component{
+class GlobalNavigation extends React.Component{sendData = () => {
+        this.props.parentCallback("test");
+    }
     constructor(props){
         super(props);
         this.state = {
@@ -17,7 +18,11 @@ class GlobalNavigation extends React.Component{
               .then(response => response.json())
               .then(data => this.setState({years: data}));
       }
-  }
+      if (this.state.userInput == null || this.state.userInput.length === 0) {
+        this.setState({userInput: this.props.selectedYear});
+      }
+    }
+  
 
   updateInput(e){
     this.setState({userInput: e.target.value});
@@ -37,7 +42,7 @@ class GlobalNavigation extends React.Component{
                 {YearsSelectItems}
                 onChange={this.updateInput}
               </select>
-              <p>Year: {this.state.userInput}</p>
+              <p>Year: {this.state.userInput} + {this.props.selectedYear}</p>
           </nav>
         )
     }
