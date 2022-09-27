@@ -1,0 +1,51 @@
+a {
+    font-size: small;
+}
+
+td, th {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;  
+    border: 3px solid #ddd;
+  }
+  
+  
+tr:hover {background-color: goldenrod;}
+  
+th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: center;
+    background-color: #636363;
+    color: white;
+  }
+  
+  button {
+    background-color: #636363;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+  }
+
+td > ul {
+    float: left; list-style: circle ;padding:0;
+}
+
+td ul li {width: 150px; height: 50px; overflow:scroll; float: left; display: block;}
+
+button {
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  
+}
