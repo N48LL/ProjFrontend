@@ -28,16 +28,13 @@ class Timekeeper extends React.Component{
                 .then(data => this.setState({timeByCategory: data}));
         }
         //fetch total amount for each day
+        //todo: month from app.js + move out of didmount
         if (this.state.timeSum == null || this.state.timeSum.length === 0) {
-            fetch("http://localhost:8080/time/2022/11/11/sum")
+            fetch("http://localhost:8080/time/"+ {month} +"/11/11/sum")
                 .then(response => response.json())
                 .then(data => this.setState({timeSum: data}));
         }
     }
-
-
-
-
     render(){
         // timeByCategory
         // TODO: need help
