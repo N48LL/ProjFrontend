@@ -1,7 +1,6 @@
 import React from 'react';
 import Button from "./Button";
 import './style/Timekeeper.css';
-import { createSlice, configureStore } from '@reduxjs/toolkit'
 
 class Timekeeper extends React.Component{
     constructor(props) {
@@ -9,39 +8,57 @@ class Timekeeper extends React.Component{
         this.state = {
             time: typeof props.time === 'undefined' ? [] : props.time,
             timeByCategory: typeof props.timeByCategory === 'undefined' ? [] : props.timeByCategory,
-            timeSum: typeof props.timeSum === 'undefined' ? [] : props.timeSum
+            timeSum: typeof props.timeSum === 'undefined' ? [] : props.timeSum,
         };
     }
 
     // fetch all data by month
     componentDidMount() {
         if (this.state.time == null || this.state.time.length === 0) {
-            fetch("http://localhost:8080/time/2022/11/")
+            fetch("http://localhost:8080/time/" +this.props.userInput+ "/02/")
                 .then(response => response.json())
                 .then(data => this.setState({time: data}));
         }
         //fetch amount for each day by category
-        // TODO: need help
         if (this.state.timeByCategory == null || this.state.timeByCategory.length === 0) {
-            fetch("http://localhost:8080/time/2022/11/11/sumbycategory")
+            fetch("http://localhost:8080/time/" +this.props.userInput+ "/02/09/sumbycategory")
                 .then(response => response.json())
                 .then(data => this.setState({timeByCategory: data}));
         }
         //fetch total amount for each day
-        //todo: month from app.js + move out of didmount
         if (this.state.timeSum == null || this.state.timeSum.length === 0) {
-            fetch("http://localhost:8080/time/"+ {month} +"/11/11/sum")
+            fetch("http://localhost:8080/time/" +this.props.userInput+ "/02/09/sum")
                 .then(response => response.json())
                 .then(data => this.setState({timeSum: data}));
         }
     }
+
+            //refetch if month changes
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (this.props.userInput !== prevProps.userInput) {
+            fetch("http://localhost:8080/time/" +this.props.userInput+ "/02/")
+                .then(response => response.json())
+                .then(data => this.setState({time: data}));
+        }
+        if (this.props.userInput !== prevProps.userInput) {
+            fetch("http://localhost:8080/time/" +this.props.userInput+ "/02/09/sumbycategory")
+                .then(response => response.json())
+                .then(data => this.setState({timeByCategory: data}));
+        }
+        if (this.props.userInput !== prevProps.userInput) {
+            fetch("http://localhost:8080/time/" +this.props.userInput+ "/02/09/sum")
+                .then(response => response.json())
+                .then(data => this.setState({timeSum: data}));
+        }
+    }
+    
     render(){
         // timeByCategory
         // TODO: need help
         let tByCat = this.state.timeByCategory;
         let TimeByCategoryItems = tByCat.map((tByCat, listIndex)=>{
             return(
-                <p key ={tByCat.id}>{tByCat.category} : {tByCat.amount}</p>
+                <p key={listIndex}>{tByCat.category} : {tByCat.amount}</p>
             );
         });
 
@@ -58,11 +75,11 @@ class Timekeeper extends React.Component{
                     <td>
                         <Button 
                             label="Löschen" 
-                            key={"delete_"+time.id} 
+                            key={"delete_"+listIndex} 
                             onClick={() => this.removeTime(time.id, listIndex)} />
                             <Button 
                             label="Bearbeiten" 
-                            key={"edit_"+time.id} 
+                            key={"edit_"+listIndex} 
                             onClick={() => this.props.editTime(time.id)} />
                     </td>
                 </tr>
@@ -103,11 +120,9 @@ class Timekeeper extends React.Component{
                             key={"create_t"}
                             onClick={() => this.addTime()} />
                          </td>
-
                     </tr>
                 </tfoot>
             </table>
-
         );
     }
 }
