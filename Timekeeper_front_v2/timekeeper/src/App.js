@@ -1,6 +1,5 @@
 import './style/App.css';
-import { Routes, Route, Outlet, } from 'react-router-dom'
-import GlobalNavigation from './GlobalNavigation';
+import { Routes, Route} from 'react-router-dom'
 
 import Timekeeper from './Timekeeper';
 import NotFound from './NotFound';

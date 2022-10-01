@@ -6,28 +6,21 @@ class Timekeeper extends React.Component{
     constructor(props) {
         super(props);
         this.state = {
-            time: typeof props.time === 'undefined' ? [] : props.time,
-            timeByCategory: typeof props.timeByCategory === 'undefined' ? [] : props.timeByCategory,
+            dataByMonth: typeof props.dataByMonth === 'undefined' ? [] : props.dataByMonth,
             timeSum: typeof props.timeSum === 'undefined' ? [] : props.timeSum,
         };
     }
 
     // fetch all data by month
     componentDidMount() {
-        if (this.state.time == null || this.state.time.length === 0) {
-            fetch("http://localhost:8080/time/" +this.props.userInput+ "/02/")
+        if (this.state.dataByMonth == null || this.state.dataByMonth.length === 0) {
+            fetch("http://localhost:8080/date/" +this.props.userInput+ "/01/")
                 .then(response => response.json())
-                .then(data => this.setState({time: data}));
-        }
-        //fetch amount for each day by category
-        if (this.state.timeByCategory == null || this.state.timeByCategory.length === 0) {
-            fetch("http://localhost:8080/time/" +this.props.userInput+ "/02/09/sumbycategory")
-                .then(response => response.json())
-                .then(data => this.setState({timeByCategory: data}));
+                .then(data => this.setState({dataByMonth: data}));
         }
         //fetch total amount for each day
         if (this.state.timeSum == null || this.state.timeSum.length === 0) {
-            fetch("http://localhost:8080/time/" +this.props.userInput+ "/02/09/sum")
+            fetch("http://localhost:8080/time/" +this.props.userInput+ "/01/01/sum")
                 .then(response => response.json())
                 .then(data => this.setState({timeSum: data}));
         }
@@ -36,55 +29,51 @@ class Timekeeper extends React.Component{
             //refetch if month changes
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (this.props.userInput !== prevProps.userInput) {
-            fetch("http://localhost:8080/time/" +this.props.userInput+ "/02/")
+            fetch("http://localhost:8080/date/" +this.props.userInput+ "/01/")
                 .then(response => response.json())
-                .then(data => this.setState({time: data}));
+                .then(data => this.setState({dataByMonth: data}));
         }
         if (this.props.userInput !== prevProps.userInput) {
-            fetch("http://localhost:8080/time/" +this.props.userInput+ "/02/09/sumbycategory")
-                .then(response => response.json())
-                .then(data => this.setState({timeByCategory: data}));
-        }
-        if (this.props.userInput !== prevProps.userInput) {
-            fetch("http://localhost:8080/time/" +this.props.userInput+ "/02/09/sum")
+            fetch("http://localhost:8080/time/" +this.props.userInput+ "/01/01/sum")
                 .then(response => response.json())
                 .then(data => this.setState({timeSum: data}));
         }
     }
-    
+
+
     render(){
-        // timeByCategory
-        // TODO: need help
-        let tByCat = this.state.timeByCategory;
-        let TimeByCategoryItems = tByCat.map((tByCat, listIndex)=>{
-            return(
-                <p key={listIndex}>{tByCat.category} : {tByCat.amount}</p>
-            );
-        });
+        // dataByDay
+
 
         // timeSum
         let tSum = this.state.timeSum;
+        let tRows = this.state.dataByMonth.map((dataByMonth, listIndex)=>{
+            const innerlist = dataByMonth.times.map((byCat, listIndex)=>{
+                return(
+                    <li key={listIndex} >{byCat.category.category}: {byCat.amount}</li>
+                );
+            });
 
-        let tRows = this.state.time.map((time, listIndex)=>{
             return(
-                <tr key={time.id}>
-                    <td>{time.entryDate.date}</td>
+                <tr key={dataByMonth.id}>
+                    <td>{dataByMonth.date}</td>
                     <td>{tSum}</td>
-                    <td>{TimeByCategoryItems}</td>
-                    <td>{time.entryDate.comment}</td>
+                    <td><ul compact>{innerlist}</ul></td>
+                    <td>{dataByMonth.comment}</td>
                     <td>
                         <Button 
                             label="Löschen" 
                             key={"delete_"+listIndex} 
-                            onClick={() => this.removeTime(time.id, listIndex)} />
+                            onClick={() => this.removeTime(dataByMonth.id, listIndex)} />
                             <Button 
                             label="Bearbeiten" 
                             key={"edit_"+listIndex} 
-                            onClick={() => this.props.editTime(time.id)} />
+                            onClick={() => this.props.editTime(dataByMonth.id)} />
                     </td>
                 </tr>
             );
         });
+
 
         return (
             <table>

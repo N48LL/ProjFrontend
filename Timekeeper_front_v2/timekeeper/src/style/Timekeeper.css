@@ -32,11 +32,6 @@ th {
     width: 100%;
   }
 
-td > ul {
-    float: left; list-style: circle ;padding:0;
-}
-
-td ul li {width: 150px; height: 50px; overflow:scroll; float: left; display: block;}
 
 button {
   background-color: #4CAF50; /* Green */
@@ -48,4 +43,9 @@ button {
   display: inline-block;
   font-size: 16px;
   
+}
+
+ul {
+  margin: 0;
+  text-align: left;
 }

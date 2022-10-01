@@ -11,7 +11,7 @@ export default class Layout extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            selectedYear: this.props.selectedYear,
+            // selectedYear: this.props.selectedYear, useless?
             userInput: '2022'
         }
     }
@@ -19,7 +19,6 @@ export default class Layout extends React.Component {
     changeuserInput = (viewYear) => {
         this.setState({ userInput: viewYear });
     }
-
 
     render() {
 

@@ -7,7 +7,7 @@ class GlobalNavigation extends React.Component{sendData = () => {
         super(props);
         this.state = {
           years: typeof props.time === 'undefined' ? [] : props.years,
-          userInput: '2022',
+          userSelectYear: '2022',
       };
       this.updateInput = this.updateInput.bind(this);
       this.changeuserInput = this.props.changeuserInput.bind(this);
@@ -19,13 +19,13 @@ class GlobalNavigation extends React.Component{sendData = () => {
               .then(response => response.json())
               .then(data => this.setState({years: data}));
       }
-      if (this.state.userInput == null || this.state.userInput.length === 0) {
-        this.setState({userInput: this.props.selectedYear});
+      if (this.state.userSelectYear == null || this.state.userSelectYear.length === 0) {
+        this.setState({userSelectYear: this.props.selectedYear});
       }
     }
   
     updateInput(e){
-      this.setState({userInput: e.target.value});
+      this.setState({userSelectYear: e.target.value});
       this.props.changeuserInput(e.target.value);
     }
 
@@ -35,12 +35,21 @@ class GlobalNavigation extends React.Component{sendData = () => {
         <option key={listIndex} value={years}>{years}</option>
       );
     });
+    let MonthsSelectItems = this.state.years.map((years, listIndex)=>{
+      return(
+        <option key={listIndex} value={years}>{years}</option>
+      );
+    });
         return(
           <nav>
               <select onChangeCapture={this.updateInput} >
                 {YearsSelectItems}
               </select>
-              <p>Year: {this.state.userInput}</p>
+              <select>
+                {MonthsSelectItems}
+              </select>
+              <p>Year: {this.state.userSelectYear}</p>
+              <p>Month: {this.state.userInput}</p>
           </nav>
         )
     }
