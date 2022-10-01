@@ -12,26 +12,33 @@ export default class Layout extends React.Component {
         super(props);
         this.state = {
             // selectedYear: this.props.selectedYear, useless?
-            userInput: '2022'
+            userInputYear: new Date().getFullYear(),
+            userInputMonth: new Date().getMonth() + 1,
         }
     }
 
-    changeuserInput = (viewYear) => {
-        this.setState({ userInput: viewYear });
+    //function to bind to child - passes data from child to parent
+    changeuserInputYear = (viewYear) => {
+        this.setState({ userInputYear: viewYear });
+    }
+    changeuserInputMonth = (viewMonth) => {
+        this.setState({ userInputMonth: viewMonth });
     }
 
-    render() {
 
+    // main render function
+    // passes <select> data(year/month) from parent to child
+    render() {
         return (
             <div className="App">
                 <header className="App-header">
                     <h1>Timekeeper</h1>
                 </header>
-                <GlobalNavigation changeuserInput={this.changeuserInput} />
+                <GlobalNavigation changeuserInputYear={this.changeuserInputYear} changeuserInputMonth={this.changeuserInputMonth}/>
                 <div className="content">
                     <header className="App-header">
                         <hr />
-                        <Timekeeper userInput={this.state.userInput} />
+                        <Timekeeper userInputYear={this.state.userInputYear} userInputMonth={this.state.userInputMonth}/>
                         <hr />
                     </header>
                 </div>
