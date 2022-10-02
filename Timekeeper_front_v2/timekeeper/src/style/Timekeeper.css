@@ -1,8 +1,28 @@
 * {
     font-size: small;
+    
 }
 p {
     color: aqua;
+}
+
+.default-container,
+.component-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.default-container {
+  gap: 20px;
+}
+
+.component-container {
+  margin-top: 30px;
+  gap: 20px;
+  border: dotted 1px grey;
+  border-radius: 14px;
 }
 
 td, th {
@@ -69,7 +89,6 @@ label {
 
 textarea {
   
-  
 }
 
 .submit {
@@ -77,4 +96,8 @@ textarea {
   margin: 0;
   padding: 5px;
 
+}
+
+#newDate {
+  display: inline;
 }
