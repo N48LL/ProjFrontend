@@ -1,4 +1,5 @@
 import React from 'react';
+import Button from './Button';
 
 class GlobalNavigation extends React.Component{sendData = () => {
     }
@@ -80,8 +81,6 @@ class GlobalNavigation extends React.Component{sendData = () => {
                 <option value={this.state.userSelectMonth} hidden="hidden">{this.state.userSelectMonth}</option>
                 {MonthsSelectItems}
               </select>
-              <p>Year: {this.state.userSelectYear}</p>
-              <p>Month: {this.state.userSelectMonth}</p>
           </nav>
         )
     }

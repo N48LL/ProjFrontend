@@ -9,9 +9,9 @@ class Timekeeper extends React.Component{
             dataByMonth: typeof props.dataByMonth === 'undefined' ? [] : props.dataByMonth,
             timeSum: typeof props.timeSum === 'undefined' ? [] : props.timeSum,
             categories: typeof props.categories === 'undefined' ? [] : props.categories,
-            newYear: '2022',
-            newMonth: '12',
-            newDay: '15',
+            newYear: '2024',
+            newMonth: '11',
+            newDay: '11'
         };
         this.saveDay = this.saveDay.bind(this);
     }
@@ -51,14 +51,26 @@ class Timekeeper extends React.Component{
         }
     }
 
+    // remove a day
+    removeDay(dayId, listIndex){
+        fetch("http://localhost:8080/date/delete/" +dayId, { method:"DELETE"})
+            .then(() => {
+                this.setState(({ dataByMonth }) => {
+                    const tempDataByMonth = [...dataByMonth];
+                    tempDataByMonth.splice(listIndex,1);
+                    return { dataByMonth: tempDataByMonth };
+                });
+            });
+    }
+
     
     //create a day by today's date and user select
     createDay() {
         const newDay = {
-            year: this.state.newYear,
-            month: this.state.newMonth,
-            day: this.state.newDay,
-            comment: document.getElementById("date").value
+            year: document.getElementById("year").value,
+            month: document.getElementById("month").value,
+            day: document.getElementById("day").value,
+            comment: document.getElementById("comment").value
         };
         fetch("http://localhost:8080/date/add", {
             method: "POST",
@@ -68,20 +80,14 @@ class Timekeeper extends React.Component{
             body: JSON.stringify(newDay)
         })
             .then(response => response.json())
-            .then(data => {
-                this.setState(({ dataByMonth }) => {
-                    const tempDataByMonth = [...dataByMonth];
-                    tempDataByMonth.push(data);
-                    return { dataByMonth: tempDataByMonth };
-                });
-               window.location.reload();
-            });
     }
+
+
     //edit a day add amount to category
     saveDay() {
         const saveDay = {
-            category: 4,
-            amount: "03:30:00",
+            category: document.getElementById("category").value,
+            amount: document.getElementById("amount").value,
             entryDate: 3
         };
         fetch("http://localhost:8080/time/add", {
@@ -101,8 +107,6 @@ class Timekeeper extends React.Component{
                 window.location.reload();
             });
     }
-
-
 
 
     // this creates the table from fetched data
@@ -126,7 +130,7 @@ class Timekeeper extends React.Component{
                         <Button 
                             label="Löschen" 
                             key={"delete_"+listIndex} 
-                            onClick={() => this.removeTime(dataByMonth.id, listIndex)} />
+                            onClick={() => this.removeDay(dataByMonth.id, listIndex)} />
                             <Button 
                             label="Bearbeiten" 
                             key={"edit_"+listIndex} 
@@ -152,12 +156,9 @@ class Timekeeper extends React.Component{
             function toggleShow() {
                 setShow(!show);
             }
-            var buttonText = show ? "Schliesen" : "Eintrag Erstellen";
-
             return (
                 <div className="component-container">
-                {show && children}
-                <button onClick={toggleShow}>{buttonText}</button>
+                {children}
                 </div>
             );
         }
@@ -165,36 +166,21 @@ class Timekeeper extends React.Component{
         function Edit({saveDay}) {
             return (
               <div className="default-container">
-                
                 <form>
-                    <b>Kategorie:</b>
+                    <h2>Neuer Eintrag</h2>
                     <label>
-                        Schule:
+                    Kategorie:
                     </label>
-                     <input type="text" name="Schule" id="1" defaultValue="00:00"/>
-                    <label>
-                        Zusammenarbeit:
-                    </label>
-                        <input type="text" name="Zusammenarbeit" id="2" defaultValue="00:00"/>
-                    <label>
-                    Weiterbildung:
-                    </label>
-                        <input type="text" name="Weiterbildung" id="3" defaultValue="00:00"/>
-                    <label>
-                    Flex:
-                    </label>
-                        <input type="text" name="Flex" id="4" defaultValue="00:00"/>
-                    <label>
-                    Förderverantwort:
-                    </label>
-                        <input type="text" name="Förderverantwort" id="5" defaultValue="00:00"/>
+                    <select id="category">
+                        {categories}
+                    </select>
+                     <input type="text" name="amount" id="amount" defaultValue="00:00:00"/>
                 </form>
                 <Button label="Speichern" onClick={saveDay} />
 
               </div>
             );
           }
-
 
         //function to set defaultValue of today
         function setToday(){
@@ -212,45 +198,54 @@ class Timekeeper extends React.Component{
             today = dd;
             return today;
         }
+
+        // function to toggle all the edit and create new stuff
+        var hidden = true;
+        function toggle() {
+            hidden = !hidden;
+            if(hidden){
+                document.getElementById("EditHidden").style.visibility = "hidden";
+                document.getElementById("EditHidden").style.display = "none";
+                document.getElementById("showstuff").style.visibility = "visible";
+                document.getElementById("newDay").style.visibility = "visible";
+                document.getElementById("newDay").style.display = "block";
+            }else{
+                document.getElementById("EditHidden").style.visibility = "visible";
+                document.getElementById("EditHidden").style.display = "block";
+                document.getElementById("showstuff").style.visibility = "hidden";
+                document.getElementById("newDay").style.visibility = "hidden";
+                document.getElementById("newDay").style.display = "none";
+            }
+        }
+        
         // create table
         return (
             <div className="Timekeeper">
-                                    
+                <div className="EditHidden" id="EditHidden" hidden>
                     <ToggleVisibility>{Edit({saveDay: this.saveDay})}</ToggleVisibility>
-                    <br/>
-            <div className='new'>
+                    <Button label="Abbrechen" onClick={() => { toggle(); window.location.reload(); }} />
+                </div>
+                <div className="showstuff" id="showstuff">
+                    <Button label="Neuer Zeiteintrag" onClick={() => toggle()} />
+                </div>
+                <br/>
+                <hr/>
+                <br/>
+            <div className='newDay' id="newDay">
                 <form>
                     <label id='newDate'>
                         Datum:
-                        <input type="year" id="year" name="year" defaultValue={this.props.userInputYear}/>
-                        <input type="month" id="month" name="month" defaultValue={this.props.userInputMonth}/>
-                        <input type="day" id="day" name="day" defaultValue={setSingleDay()}/>
+                        <input type="text" id="year" name="year" defaultValue={this.props.userInputYear}/>
+                        <input type="text" id="month" name="month" defaultValue={this.props.userInputMonth}/>
+                        <input type="text" id="day" name="day" defaultValue={setSingleDay()}/>
                     </label>
                     <label>
                         Kommentar:
-                        <textarea rows="2" cols="85" name="comment" id='comment' />
+                        <textarea rows="2" cols="67" name="comment" id='comment' />
                     </label>
-                    <Button label="Eintrag Erstellen" onClick={() => this.createDay()} />
-                    <hr/>
-                    <label>
-                        Datum:
-                        <input type="date" name="date" id="date" defaultValue={setToday()}/>
-                    </label>
-                    <label>
-                        Kategorie:
-                        <select name="category">
-                        <option value="default" hidden="hidden">Wähle eine Kategorie</option>
-                        {categories}
-                        </select>
-                    </label>
-                    <label>
-                        Zeit:<br/>
-                        <input type="time" name="time" step="2" id='time' defaultValue="00:00:00"/>
-                    </label>
-                    
+                    <button type="button" onClick={() => { this.createDay(); toggle(); console.log("test") }}>Neuer Tag</button>
                     <hr/>
                 </form>
-      
             </div>
 
             <table>
