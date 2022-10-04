@@ -9,9 +9,10 @@ class Timekeeper extends React.Component{
             dataByMonth: typeof props.dataByMonth === 'undefined' ? [] : props.dataByMonth,
             timeSum: typeof props.timeSum === 'undefined' ? [] : props.timeSum,
             categories: typeof props.categories === 'undefined' ? [] : props.categories,
-            newYear: '2024',
-            newMonth: '11',
-            newDay: '11'
+            catID: typeof props.catID === 'undefined' ? [] : props.catID,
+            newYear: '2022',
+            newMonth: '01',
+            newDay: '01',
         };
         this.saveDay = this.saveDay.bind(this);
     }
@@ -37,17 +38,22 @@ class Timekeeper extends React.Component{
         }
     }
 
-    //refetch if month changes
+    //refetch if month/year changes
     componentDidUpdate(prevProps, prevState, snapshot) {
-        if (this.props.userInputYear !== prevProps.userInputYear) {
+        if (this.props.userInputYear !== prevProps.userInputYear || this.props.userInputMonth !== prevProps.userInputMonth) {
             fetch("http://localhost:8080/date/" +this.props.userInputYear+ "/" +this.props.userInputMonth+ "/")
                 .then(response => response.json())
                 .then(data => this.setState({dataByMonth: data}));
         }
-        if (this.props.userInputYear !== prevProps.userInputYear) {
+        if (this.props.userInputYear !== prevProps.userInputYear || this.props.userInputMonth !== prevProps.userInputMonth) {
             fetch("http://localhost:8080/date/" +this.props.userInputYear+ "/" +this.props.userInputMonth+ "/sum")
                 .then(response => response.json())
                 .then(data => this.setState({timeSum: data}));
+        }
+        if (this.state.newDay !== prevState.newDay) {
+            fetch("http://localhost:8080/date/" +document.getElementById("year").value+ "/" +document.getElementById("month").value+ "/" +document.getElementById("day").value+ "/id")
+                .then(response => response.json())
+                .then(data => this.setState({catID: data}))
         }
     }
 
@@ -64,7 +70,7 @@ class Timekeeper extends React.Component{
     }
 
     
-    //create a day by today's date and user select
+    //create a day by user input
     createDay() {
         const newDay = {
             year: document.getElementById("year").value,
@@ -83,12 +89,13 @@ class Timekeeper extends React.Component{
     }
 
 
-    //edit a day add amount to category
+    //edit a day and add amount to category
     saveDay() {
         const saveDay = {
             category: document.getElementById("category").value,
             amount: document.getElementById("amount").value,
             entryDate: 3
+            //TODO this needs to be the id of the day from user input -> find entrydate id by date (listIndex?)
         };
         fetch("http://localhost:8080/time/add", {
             method: "POST",
@@ -124,7 +131,7 @@ class Timekeeper extends React.Component{
                 <tr key={dataByMonth.id}>
                     <td>{dataByMonth.date}</td>
                     <td>{timeSum[listIndex]}</td>
-                    <td><ul compact>{innerlist}</ul></td>
+                    <td><ul compact="compact">{innerlist}</ul></td>
                     <td>{dataByMonth.comment}</td>
                     <td>
                         <Button 
@@ -135,6 +142,7 @@ class Timekeeper extends React.Component{
                             label="Bearbeiten" 
                             key={"edit_"+listIndex} 
                             onClick={() => this.props.editTime(dataByMonth.id)} />
+                            <p>cat: </p>
                     </td>
                 </tr>
             );
@@ -162,8 +170,7 @@ class Timekeeper extends React.Component{
                 </div>
             );
         }
-
-        function Edit({saveDay}) {
+        function Edit({saveDay}, {newDay}) {
             return (
               <div className="default-container">
                 <form>
@@ -177,7 +184,7 @@ class Timekeeper extends React.Component{
                      <input type="text" name="amount" id="amount" defaultValue="00:00:00"/>
                 </form>
                 <Button label="Speichern" onClick={saveDay} />
-
+                <button type="button" onClick={() => { console.log({newDay}) }}>Console.log</button>
               </div>
             );
           }
@@ -217,12 +224,21 @@ class Timekeeper extends React.Component{
                 document.getElementById("newDay").style.display = "none";
             }
         }
+        //function to update state values
+        function updateState(){
+            this.setState({newDay: document.getElementById("day").value});
+            this.setState({newMonth: document.getElementById("month").value});
+            this.setState({newYear: document.getElementById("year").value});
+        }
         
         // create table
         return (
             <div className="Timekeeper">
+
+                <button type="button" onClick={() => { console.log(this.state.catID.id) }}>Console.log</button>
+                <p>cat ID is: {this.state.catID.id}</p>
                 <div className="EditHidden" id="EditHidden" hidden>
-                    <ToggleVisibility>{Edit({saveDay: this.saveDay})}</ToggleVisibility>
+                    <ToggleVisibility>{Edit({saveDay: this.saveDay}, {newDay: this.state.newDay})}</ToggleVisibility>
                     <Button label="Abbrechen" onClick={() => { toggle(); window.location.reload(); }} />
                 </div>
                 <div className="showstuff" id="showstuff">
@@ -243,7 +259,7 @@ class Timekeeper extends React.Component{
                         Kommentar:
                         <textarea rows="2" cols="67" name="comment" id='comment' />
                     </label>
-                    <button type="button" onClick={() => { this.createDay(); toggle(); console.log("test") }}>Neuer Tag</button>
+                    <button type="button" onClick={() => { toggle(); this.setState({newDay: document.getElementById("day").value}); this.createDay();}}>Neuer Tag Erstellen</button>
                     <hr/>
                 </form>
             </div>
