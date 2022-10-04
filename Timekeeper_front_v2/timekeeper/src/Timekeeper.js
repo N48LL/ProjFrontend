@@ -57,6 +57,14 @@ class Timekeeper extends React.Component{
         }
     }
 
+
+    //TODO: CONITNUE HERE -> this.fetchID(2011, 11, 12 @ ConsoleButton
+    fetchID(year, month, day) {
+        fetch("http://localhost:8080/date/" +year+ "/" +month+ "/" +day+ "/id")
+            .then(response => response.json())
+            .then(data => this.setState({catID: data}))
+    }
+
     // remove a day
     removeDay(dayId, listIndex){
         fetch("http://localhost:8080/date/delete/" +dayId, { method:"DELETE"})
@@ -235,7 +243,7 @@ class Timekeeper extends React.Component{
         return (
             <div className="Timekeeper">
 
-                <button type="button" onClick={() => { console.log(this.state.catID.id) }}>Console.log</button>
+                <button type="button" onClick={() => { this.fetchID(2011, 11, 12); console.log(this.state.catID.id) }}>Console.log</button>
                 <p>cat ID is: {this.state.catID.id}</p>
                 <div className="EditHidden" id="EditHidden" hidden>
                     <ToggleVisibility>{Edit({saveDay: this.saveDay}, {newDay: this.state.newDay})}</ToggleVisibility>
