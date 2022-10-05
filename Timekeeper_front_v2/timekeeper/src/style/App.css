@@ -47,12 +47,3 @@ button {
   margin: 4px;
   border-radius: 20px;
 }
-
-button.wrong {
-  border: 3px solid #A22;
-}
-
-button.correct {
-  border: 3px solid #2A2;
-}
-
