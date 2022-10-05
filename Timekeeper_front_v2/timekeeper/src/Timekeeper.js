@@ -7,6 +7,7 @@ class Timekeeper extends React.Component{
         super(props);
         this.state = {
             dataByMonth: typeof props.dataByMonth === 'undefined' ? [] : props.dataByMonth,
+            saveDay: typeof props.saveDay === 'undefined' ? [] : props.saveDay,
             timeSum: typeof props.timeSum === 'undefined' ? [] : props.timeSum,
             categories: typeof props.categories === 'undefined' ? [] : props.categories,
             catID: typeof props.catID === 'undefined' ? [] : props.catID,
@@ -102,7 +103,7 @@ class Timekeeper extends React.Component{
         const saveDay = {
             category: document.getElementById("category").value,
             amount: document.getElementById("amount").value,
-            entryDate: 3
+            entryDate: 2
             //TODO this needs to be the id of the day from user input -> find entrydate id by date (listIndex?)
         };
         fetch("http://localhost:8080/time/add", {
@@ -114,10 +115,10 @@ class Timekeeper extends React.Component{
         })
             .then(response => response.json())
             .then(data => {
-                this.setState(({ dataByMonth }) => {
-                    const tempDataByMonth = [...dataByMonth];
-                    tempDataByMonth.push(data);
-                    return { dataByMonth: tempDataByMonth };
+                this.setState(({ saveDay }) => {
+                    const tempsaveDay = [...saveDay];
+                    tempsaveDay.push(data);
+                    return { saveDay: tempsaveDay };
                 });
                 window.location.reload();
             });
@@ -192,7 +193,7 @@ class Timekeeper extends React.Component{
                      <input type="text" name="amount" id="amount" defaultValue="00:00:00"/>
                 </form>
                 <Button label="Speichern" onClick={saveDay} />
-                <button type="button" onClick={() => { console.log({newDay}) }}>Console.log</button>
+                <button type="button" onClick={() => { console.log({newDay}) }}>Console.log 2</button>
               </div>
             );
           }
@@ -243,10 +244,10 @@ class Timekeeper extends React.Component{
         return (
             <div className="Timekeeper">
 
-                <button type="button" onClick={() => { this.fetchID(2011, 11, 12); console.log(this.state.catID.id) }}>Console.log</button>
+                <button type="button" onClick={() => { this.fetchID(document.getElementById("year").value, document.getElementById("month").value, document.getElementById("day").value); console.log(this.state.catID.id) }}>Console.log</button>
                 <p>cat ID is: {this.state.catID.id}</p>
                 <div className="EditHidden" id="EditHidden" hidden>
-                    <ToggleVisibility>{Edit({saveDay: this.saveDay}, {newDay: this.state.newDay})}</ToggleVisibility>
+                    <ToggleVisibility>{Edit({saveDay: this.saveDay}, {newDay: this.state.catID.id})}</ToggleVisibility>
                     <Button label="Abbrechen" onClick={() => { toggle(); window.location.reload(); }} />
                 </div>
                 <div className="showstuff" id="showstuff">
