@@ -11,11 +11,14 @@ class Timekeeper extends React.Component{
             timeSum: typeof props.timeSum === 'undefined' ? [] : props.timeSum,
             categories: typeof props.categories === 'undefined' ? [] : props.categories,
             catID: typeof props.catID === 'undefined' ? [] : props.catID,
+            saveDayonEdit: typeof props.saveDayonEdit === 'undefined' ? [] : props.saveDayonEdit,
+            editTime: typeof props.editTime === 'undefined' ? [] : props.editTime,
             newYear: '2022',
             newMonth: '01',
             newDay: '01',
         };
         this.saveDay = this.saveDay.bind(this);
+        this.saveDayonEdit = this.saveDayonEdit.bind(this);
     }
 
     componentDidMount() {
@@ -99,12 +102,11 @@ class Timekeeper extends React.Component{
 
 
     //edit a day and add amount to category
-    saveDay() {
+    saveDay(newDayiD) {
         const saveDay = {
             category: document.getElementById("category").value,
             amount: document.getElementById("amount").value,
-            entryDate: 2
-            //TODO this needs to be the id of the day from user input -> find entrydate id by date (listIndex?)
+            entryDate: this.state.catID.id
         };
         fetch("http://localhost:8080/time/add", {
             method: "POST",
@@ -124,6 +126,30 @@ class Timekeeper extends React.Component{
             });
     }
 
+    saveDayonEdit() {
+        const saveDayonEdit = {
+            category: document.getElementById("category").value,
+            amount: document.getElementById("amount").value,
+            entryDate: this.props.editTime
+        };
+        fetch("http://localhost:8080/time/add", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(saveDayonEdit)
+        })
+            .then(response => response.json())
+            .then(data => {
+                this.setState(({ saveDayonEdit }) => {
+                    const tempsaveDay = [...saveDayonEdit];
+                    tempsaveDay.push(data);
+                    return { saveDayonEdit: tempsaveDay };
+                });
+                window.location.reload();
+            });
+    }
+
 
     // this creates the table from fetched data
     render(){
@@ -136,6 +162,8 @@ class Timekeeper extends React.Component{
             });
 
             // single row
+            // todo HOW DO YOU MOVE PROPS WTFSFSFS
+            // this.props.editTime(dataByMonth.id)} ---> saveDayonEdit -> entryDate: this.dataByMonth.id
             return(
                 <tr key={dataByMonth.id}>
                     <td>{dataByMonth.date}</td>
@@ -143,15 +171,19 @@ class Timekeeper extends React.Component{
                     <td><ul compact="compact">{innerlist}</ul></td>
                     <td>{dataByMonth.comment}</td>
                     <td>
+                    <Button 
+                            label="Hinzufügen" 
+                            key={"add_"+listIndex} 
+                            onClick={() => {toggle(); this.setState({editTime: dataByMonth.id})}} />
+                        <Button 
+                            label="Bearbeiten" 
+                            key={"edit_"+listIndex} 
+                            onClick={() => this.props.editTime(dataByMonth.id)} />
+                        <hr></hr>
                         <Button 
                             label="Löschen" 
                             key={"delete_"+listIndex} 
                             onClick={() => this.removeDay(dataByMonth.id, listIndex)} />
-                            <Button 
-                            label="Bearbeiten" 
-                            key={"edit_"+listIndex} 
-                            onClick={() => this.props.editTime(dataByMonth.id)} />
-                            <p>cat: </p>
                     </td>
                 </tr>
             );
@@ -179,7 +211,7 @@ class Timekeeper extends React.Component{
                 </div>
             );
         }
-        function Edit({saveDay}, {newDay}) {
+        function Edit({saveDay}, {saveDayonEdit}) {
             return (
               <div className="default-container">
                 <form>
@@ -193,7 +225,7 @@ class Timekeeper extends React.Component{
                      <input type="text" name="amount" id="amount" defaultValue="00:00:00"/>
                 </form>
                 <Button label="Speichern" onClick={saveDay} />
-                <button type="button" onClick={() => { console.log({newDay}) }}>Console.log 2</button>
+                <Button label="Speichern on Edit" onClick={saveDayonEdit} />
               </div>
             );
           }
@@ -243,18 +275,14 @@ class Timekeeper extends React.Component{
         // create table
         return (
             <div className="Timekeeper">
-
-                <button type="button" onClick={() => { this.fetchID(document.getElementById("year").value, document.getElementById("month").value, document.getElementById("day").value); console.log(this.state.catID.id) }}>Console.log</button>
                 <p>cat ID is: {this.state.catID.id}</p>
                 <div className="EditHidden" id="EditHidden" hidden>
-                    <ToggleVisibility>{Edit({saveDay: this.saveDay}, {newDay: this.state.catID.id})}</ToggleVisibility>
+                    <ToggleVisibility>{Edit({saveDay: this.saveDay}, {newDayiD: this.state.catID.id}, {saveDayonEdit: this.saveDayonEdit})}</ToggleVisibility>
                     <Button label="Abbrechen" onClick={() => { toggle(); window.location.reload(); }} />
                 </div>
                 <div className="showstuff" id="showstuff">
-                    <Button label="Neuer Zeiteintrag" onClick={() => toggle()} />
+                    <Button label="Neuer Zeiteintrag" onClick={() => { this.fetchID(document.getElementById("year").value, document.getElementById("month").value, document.getElementById("day").value); toggle()}} />
                 </div>
-                <br/>
-                <hr/>
                 <br/>
             <div className='newDay' id="newDay">
                 <form>
@@ -268,7 +296,7 @@ class Timekeeper extends React.Component{
                         Kommentar:
                         <textarea rows="2" cols="67" name="comment" id='comment' />
                     </label>
-                    <button type="button" onClick={() => { toggle(); this.setState({newDay: document.getElementById("day").value}); this.createDay();}}>Neuer Tag Erstellen</button>
+                    <button type="button" onClick={() => { this.fetchID(document.getElementById("year").value, document.getElementById("month").value, document.getElementById("day").value); toggle(); this.setState({newDay: document.getElementById("day").value}); this.createDay(); }}>Neuer Tag Erstellen</button>
                     <hr/>
                 </form>
             </div>
