@@ -137,7 +137,6 @@ class Timekeeper extends React.Component {
         const saveDayonEdit = {
             category: document.getElementById("category").value,
             amount: document.getElementById("amount").value,
-            entryDate: this.props.editTime
             entryDate: this.state.id
         };
         fetch("http://localhost:8080/time/add", {
