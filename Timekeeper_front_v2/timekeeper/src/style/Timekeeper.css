@@ -84,24 +84,10 @@ ul {
   margin-bottom: 20px;
 }
 
-label {
-  display: block;
-  position: relative;
-  width: 100px;
-  text-align: left;
-  margin: 0;
-  padding: 5px;
-}
-
 textarea {
-  width: fit-content;
+  width: 100%;
     resize: vertical;
-    padding:15px;
-    border-radius:8px;
-    border:0;
-    box-shadow:4px 4px 10px rgba(118, 106, 106, 0.6);
-    height:150px;
-    display: block;
+    height:50px;
 }
 
 .submit {
@@ -111,22 +97,56 @@ textarea {
 
 }
 
-#newDate {
+#hide {
   display: inline;
 }
 
 fieldset {
-  border: 1px solid #ccc;
-  padding: 15px;
-  margin: 15px;
+  border: none;
+}
+
+.dates {
+  float:left;
+}
+.dates_top {
+  display: inline-block;
+}
+
+.field_dates {
+  display: inline;
+}
+select {
+  display:block;
+  margin: 4px;
+}
+
+label {
+  color: #c0bcbc;
+  display:block;
+  text-align: left;
+  margin: 0;
+  padding-left: 5px;
 }
 
 input {
-  display: inline;
+  display:block;
   margin: 4px;
 }
 
 input[type=text] {
   width: 60px;
   text-align: center;
+}
+
+.btn_create {
+  border: none;
+  text-align: center;
+  margin: 20px 1px;
+  cursor: pointer;
+  max-width: 200px;
+}
+
+hr {
+  margin-top: 15px;
+  margin-bottom: 15px;
 }

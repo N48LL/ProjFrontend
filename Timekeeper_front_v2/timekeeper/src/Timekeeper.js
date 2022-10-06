@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Button from "./Button";
 import './style/Timekeeper.css';
 
-class Timekeeper extends React.Component{
+class Timekeeper extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -13,13 +13,20 @@ class Timekeeper extends React.Component{
             catID: typeof props.catID === 'undefined' ? [] : props.catID,
             saveDayonEdit: typeof props.saveDayonEdit === 'undefined' ? [] : props.saveDayonEdit,
             editTime: typeof props.editTime === 'undefined' ? [] : props.editTime,
-            newYear: '2022',
-            newMonth: '01',
-            newDay: '01',
+            //newYear: '2022',
+            //newMonth: '01',
+            //newDay: '01',
+            id: "1"
+
         };
         this.saveDay = this.saveDay.bind(this);
         this.saveDayonEdit = this.saveDayonEdit.bind(this);
+        this.updateId = this.updateId.bind(this);
     }
+
+    updateId = (p) => {
+        this.setState({ id: p });
+      }
 
     componentDidMount() {
         // fetch all data by month
@@ -102,7 +109,7 @@ class Timekeeper extends React.Component{
 
 
     //edit a day and add amount to category
-    saveDay(newDayiD) {
+    saveDay() {
         const saveDay = {
             category: document.getElementById("category").value,
             amount: document.getElementById("amount").value,
@@ -131,6 +138,7 @@ class Timekeeper extends React.Component{
             category: document.getElementById("category").value,
             amount: document.getElementById("amount").value,
             entryDate: this.props.editTime
+            entryDate: this.state.id
         };
         fetch("http://localhost:8080/time/add", {
             method: "POST",
@@ -150,9 +158,9 @@ class Timekeeper extends React.Component{
             });
     }
 
-
     // this creates the table from fetched data
     render(){
+        const id = this.state.id;
         let timeSum = this.state.timeSum.length === 0 ? [] : this.state.timeSum;
         let tRows = this.state.dataByMonth.map((dataByMonth, listIndex)=>{
             const innerlist = dataByMonth.times.map((byCat, listIndex)=>{
@@ -162,8 +170,6 @@ class Timekeeper extends React.Component{
             });
 
             // single row
-            // todo HOW DO YOU MOVE PROPS WTFSFSFS
-            // this.props.editTime(dataByMonth.id)} ---> saveDayonEdit -> entryDate: this.dataByMonth.id
             return(
                 <tr key={dataByMonth.id}>
                     <td>{dataByMonth.date}</td>
@@ -174,8 +180,8 @@ class Timekeeper extends React.Component{
                     <Button 
                             label="Hinzufügen" 
                             key={"add_"+listIndex} 
-                            onClick={() => {toggle(); this.setState({editTime: dataByMonth.id})}} />
-                        <Button 
+                            onClick={() => {toggle(); this.updateId(dataByMonth.id)}} />
+                    <Button 
                             label="Bearbeiten" 
                             key={"edit_"+listIndex} 
                             onClick={() => this.props.editTime(dataByMonth.id)} />
@@ -205,9 +211,12 @@ class Timekeeper extends React.Component{
             function toggleShow() {
                 setShow(!show);
             }
+            function scrollTop() {
+                window.scrollTo(0, 0);
+            }
             return (
                 <div className="component-container">
-                {children}
+                {children} {scrollTop()}
                 </div>
             );
         }
@@ -215,14 +224,16 @@ class Timekeeper extends React.Component{
             return (
               <div className="default-container">
                 <form>
-                    <h2>Neuer Eintrag</h2>
-                    <label>
-                    Kategorie:
-                    </label>
-                    <select id="category">
-                        {categories}
-                    </select>
-                     <input type="text" name="amount" id="amount" defaultValue="00:00:00"/>
+                    <h1>Neuer Eintrag</h1>
+                    <div className="dates">
+                        <label>Kategorie</label>
+                        <select id="category">{categories}</select>
+                    </div>
+                    <div className="dates">
+                        <label>Zeit</label>
+                        <input type="text" name="amount" id="amount" defaultValue="00:00:00"/>
+                    </div>
+                     
                 </form>
                 <Button label="Speichern" onClick={saveDay} />
                 <Button label="Speichern on Edit" onClick={saveDayonEdit} />
@@ -231,14 +242,14 @@ class Timekeeper extends React.Component{
           }
 
         //function to set defaultValue of today
-        function setToday(){
+       /* function setToday(){
             let today = new Date();
             let dd = String(today.getDate()).padStart(2, '0');
             let mm = String(today.getMonth() + 1).padStart(2, '0');
             let yyyy = today.getFullYear();
             today = yyyy + '-' + mm + '-' + dd;
             return today;
-        }
+        } */
         //function to set default single day
         function setSingleDay(){
             let today = new Date();
@@ -254,53 +265,56 @@ class Timekeeper extends React.Component{
             if(hidden){
                 document.getElementById("EditHidden").style.visibility = "hidden";
                 document.getElementById("EditHidden").style.display = "none";
-                document.getElementById("showstuff").style.visibility = "visible";
-                document.getElementById("newDay").style.visibility = "visible";
-                document.getElementById("newDay").style.display = "block";
+                document.getElementById("hide").style.visibility = "visible";
+                document.getElementById("hide").style.display = "block";
             }else{
                 document.getElementById("EditHidden").style.visibility = "visible";
                 document.getElementById("EditHidden").style.display = "block";
-                document.getElementById("showstuff").style.visibility = "hidden";
-                document.getElementById("newDay").style.visibility = "hidden";
-                document.getElementById("newDay").style.display = "none";
+                document.getElementById("hide").style.visibility = "hidden";
+                document.getElementById("hide").style.display = "none";
             }
         }
         //function to update state values
-        function updateState(){
-            this.setState({newDay: document.getElementById("day").value});
-            this.setState({newMonth: document.getElementById("month").value});
-            this.setState({newYear: document.getElementById("year").value});
-        }
-        
+        //function updateState(){
+          //  this.setState({newDay: document.getElementById("day").value});
+            //this.setState({newMonth: document.getElementById("month").value});
+            //this.setState({newYear: document.getElementById("year").value});
+        //}
+
         // create table
         return (
             <div className="Timekeeper">
-                <p>cat ID is: {this.state.catID.id}</p>
                 <div className="EditHidden" id="EditHidden" hidden>
-                    <ToggleVisibility>{Edit({saveDay: this.saveDay}, {newDayiD: this.state.catID.id}, {saveDayonEdit: this.saveDayonEdit})}</ToggleVisibility>
+                    <ToggleVisibility>{Edit({saveDay: this.saveDay}, {saveDayonEdit: this.saveDayonEdit})}</ToggleVisibility>
                     <Button label="Abbrechen" onClick={() => { toggle(); window.location.reload(); }} />
                 </div>
-                <div className="showstuff" id="showstuff">
-                    <Button label="Neuer Zeiteintrag" onClick={() => { this.fetchID(document.getElementById("year").value, document.getElementById("month").value, document.getElementById("day").value); toggle()}} />
-                </div>
+            <div className='CreateDay'>
                 <br/>
-            <div className='newDay' id="newDay">
                 <form>
-                    <label id='newDate'>
-                        Datum:
+                    <div className="dates">
+                        <label>Jahr</label>
                         <input type="text" id="year" name="year" defaultValue={this.props.userInputYear}/>
+                    </div>
+                    <div className="dates">
+                    <label>Monat</label>
                         <input type="text" id="month" name="month" defaultValue={this.props.userInputMonth}/>
+                    </div>
+                    <div className="dates">
+                        <label>Tag</label>
                         <input type="text" id="day" name="day" defaultValue={setSingleDay()}/>
-                    </label>
-                    <label>
-                        Kommentar:
-                        <textarea rows="2" cols="67" name="comment" id='comment' />
-                    </label>
-                    <button type="button" onClick={() => { this.fetchID(document.getElementById("year").value, document.getElementById("month").value, document.getElementById("day").value); toggle(); this.setState({newDay: document.getElementById("day").value}); this.createDay(); }}>Neuer Tag Erstellen</button>
+                    </div>
+                    <div className="btn_dates" id='hide'>
+                    <button className='btn_create' type="button" onClick={() => { this.fetchID(document.getElementById("year").value, document.getElementById("month").value, document.getElementById("day").value); toggle(); this.setState({newDay: document.getElementById("day").value}); this.createDay(); }}>Neuer Tages Eintrag</button>
+                    </div>
+                    <br/>
+                    <div className="field_dates" id="hidden">
+                       <label>Kommentar: </label>
+                        <textarea rows="2" cols="67" name="comment" id='comment' /> 
+                    </div>
+                    <br/>
                     <hr/>
                 </form>
             </div>
-
             <table>
                 <thead>
                     <tr>
@@ -319,5 +333,5 @@ class Timekeeper extends React.Component{
         );
     }
 }
-
+// sorry for spagetthi code... xD
 export default Timekeeper;

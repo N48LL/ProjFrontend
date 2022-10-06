@@ -73,14 +73,20 @@ class GlobalNavigation extends React.Component{sendData = () => {
     });
         return(
           <nav>
+            <div className="dates_top">
+            <label>Jahr</label>
               <select onChangeCapture={this.updateInput} >
                 <option value={this.state.userSelectYear} hidden="hidden">{this.state.userSelectYear}</option>
                 {YearsSelectItems}
               </select>
+              </div>
+              <div className="dates_top">
+              <label>Monat</label>
               <select onChangeCapture={this.updateInputMonth}>
                 <option value={this.state.userSelectMonth} hidden="hidden">{this.state.userSelectMonth}</option>
                 {MonthsSelectItems}
               </select>
+              </div>
           </nav>
         )
     }

@@ -11,7 +11,6 @@ export default class Layout extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            // selectedYear: this.props.selectedYear, useless?
             userInputYear: new Date().getFullYear(),
             userInputMonth: new Date().getMonth() + 1,
         }
