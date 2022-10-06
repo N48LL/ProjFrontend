@@ -13,19 +13,102 @@ class Timekeeper extends React.Component {
             catID: typeof props.catID === 'undefined' ? [] : props.catID,
             saveDayonEdit: typeof props.saveDayonEdit === 'undefined' ? [] : props.saveDayonEdit,
             editTime: typeof props.editTime === 'undefined' ? [] : props.editTime,
-            //newYear: '2022',
-            //newMonth: '01',
-            //newDay: '01',
-            id: "1"
+            fields: { year: '', month: '', day: '' },
+            errors: { year: '', month: '', day: '' },
+            id: "1",
 
         };
         this.saveDay = this.saveDay.bind(this);
         this.saveDayonEdit = this.saveDayonEdit.bind(this);
         this.updateId = this.updateId.bind(this);
+
+        this.handleChange = this.handleChange.bind(this);
+        this.submituserCreateNewForm = this.submituserCreateNewForm.bind(this);
+
     }
+
+    //////////////////Validation ///////////////////
+    // TODO: Fetching verlinken @alert
+
+    handleChange(e) {
+        let fields = this.state.fields;
+        fields[e.target.name] = e.target.value;
+        this.setState({
+          fields
+        });
+  
+      }
+  
+
+      submituserCreateNewForm(e) {
+        e.preventDefault();
+        if (this.validateForm()) {
+            let fields = {};
+            fields["year"] = "";
+            fields["month"] = "";
+            fields["day"] = "";
+            this.setState({fields:fields});
+            alert("Alle Eingaben sind korrekt!");
+        }
+      }
+
+
+
+      validateForm() {
+        let fields = this.state.fields;
+        let errors = {};
+        let formIsValid = true;
+
+        if (!fields["year"]) {
+            formIsValid = false;
+            errors["year"] = "*Bitte geben Sie ein Jahr ein.";
+        }
+
+        if (typeof fields["year"] !== "undefined") {
+            if (!fields["year"].match(/^[0-9]{4}$/)) {
+                formIsValid = false;
+                errors["year"] = "*Bitte geben Sie ein gültiges Jahr ein.";
+            }
+        }
+
+        if (!fields["month"]) {
+            formIsValid = false;
+            errors["month"] = "*Bitte geben Sie einen Monat ein.";
+        }
+
+        if (typeof fields["month"] !== "undefined") {
+            if (!fields["month"].match(/^[0-9]{2}$/)) {
+                formIsValid = false;
+                errors["month"] = "*Bitte geben Sie einen gültigen Monat ein.";
+            }
+        }
+
+        if (!fields["day"]) {
+            formIsValid = false;
+            errors["day"] = "*Bitte geben Sie einen Tag ein.";
+        }
+
+        if (typeof fields["day"] !== "undefined") {
+            if (!fields["day"].match(/^[0-9]{2}$/)) {
+                formIsValid = false;
+                errors["day"] = "*Bitte geben Sie einen gültigen Tag ein.";
+            }
+        }
+
+        // comment validation of 512 @ inline texarea maxLength={512}
+
+
+        this.setState({
+            errors: errors
+        });
+        return formIsValid;
+    }
+
+        /////////////////Ende Validation/////////////////
 
     updateId = (p) => {
         this.setState({ id: p });
+        this.setState({ isHidden: true });
       }
 
     componentDidMount() {
@@ -68,8 +151,7 @@ class Timekeeper extends React.Component {
         }
     }
 
-
-    //TODO: CONITNUE HERE -> this.fetchID(2011, 11, 12 @ ConsoleButton
+    // fetch id by date
     fetchID(year, month, day) {
         fetch("http://localhost:8080/date/" +year+ "/" +month+ "/" +day+ "/id")
             .then(response => response.json())
@@ -89,7 +171,8 @@ class Timekeeper extends React.Component {
     }
 
     
-    //create a day by user input
+    // create a day by user input
+    // validate if day already exists
     createDay() {
         const newDay = {
             year: document.getElementById("year").value,
@@ -97,6 +180,11 @@ class Timekeeper extends React.Component {
             day: document.getElementById("day").value,
             comment: document.getElementById("comment").value
         };
+        let checkifExists = document.getElementById("year").value + "-" + document.getElementById("month").value + "-" + document.getElementById("day").value;
+        let tRows = this.state.dataByMonth.map((dataByMonth, listIndex)=>{
+            if (dataByMonth.date === checkifExists) {
+                alert("Dieser Tag existiert bereits!");
+            } else if (listIndex === this.state.dataByMonth.length - 1) {
         fetch("http://localhost:8080/date/add", {
             method: "POST",
             headers: {
@@ -106,9 +194,12 @@ class Timekeeper extends React.Component {
         })
             .then(response => response.json())
     }
+        });
+    }
 
 
-    //edit a day and add amount to category
+
+    // edit a day and add amount to category
     saveDay() {
         const saveDay = {
             category: document.getElementById("category").value,
@@ -156,6 +247,7 @@ class Timekeeper extends React.Component {
                 window.location.reload();
             });
     }
+
 
     // this creates the table from fetched data
     render(){
@@ -219,6 +311,7 @@ class Timekeeper extends React.Component {
                 </div>
             );
         }
+        //TODO: switch um die Speicehrbuttons indivieduell zu machen
         function Edit({saveDay}, {saveDayonEdit}) {
             return (
               <div className="default-container">
@@ -234,8 +327,8 @@ class Timekeeper extends React.Component {
                     </div>
                      
                 </form>
-                <Button label="Speichern" onClick={saveDay} />
-                <Button label="Speichern on Edit" onClick={saveDayonEdit} />
+                <Button label="Speichern für neuer Tag" onClick={saveDay} />
+                <Button label="Speichern für Hinzufügen" onClick={saveDayonEdit} />
               </div>
             );
           }
@@ -289,18 +382,30 @@ class Timekeeper extends React.Component {
                 </div>
             <div className='CreateDay'>
                 <br/>
-                <form>
+                <form method="post"  name="userRegistrationForm"  onSubmit= {this.submituserCreateNewForm}>
                     <div className="dates">
                         <label>Jahr</label>
-                        <input type="text" id="year" name="year" defaultValue={this.props.userInputYear}/>
+                        <input type="text" id="year" name="year" list="todayYear" autoComplete="off" value={this.state.fields.year} onChange={this.handleChange}/>
+                            <datalist id="todayYear">
+                                <option value={this.props.userInputYear}>Heute: {setSingleDay()}.{this.props.userInputMonth}{this.props.userInputYear}</option>
+                            </datalist>
+                        <div className="errorMsg">{this.state.errors.year}</div>
                     </div>
                     <div className="dates">
                     <label>Monat</label>
-                        <input type="text" id="month" name="month" defaultValue={this.props.userInputMonth}/>
+                        <input type="text" id="month" name="month" list="todayMonth" autoComplete="off" value={this.state.fields.month} onChange={this.handleChange}/>
+                        <datalist id="todayMonth">
+                                <option value={this.props.userInputMonth}>Heute: {setSingleDay()}.{this.props.userInputMonth}{this.props.userInputYear}</option>
+                            </datalist>
+                        <div className="errorMsg">{this.state.errors.month}</div>
                     </div>
                     <div className="dates">
                         <label>Tag</label>
-                        <input type="text" id="day" name="day" defaultValue={setSingleDay()}/>
+                        <input type="text" id="day" name="day" list="todayDay" autoComplete="off" value={this.state.fields.day} onChange={this.handleChange}/>
+                        <datalist id="todayDay">
+                                <option value={setSingleDay()}>Heute: {setSingleDay()}.{this.props.userInputMonth}{this.props.userInputYear}</option>
+                            </datalist>
+                        <div className="errorMsg">{this.state.errors.day}</div>
                     </div>
                     <div className="btn_dates" id='hide'>
                     <button className='btn_create' type="button" onClick={() => { this.fetchID(document.getElementById("year").value, document.getElementById("month").value, document.getElementById("day").value); toggle(); this.setState({newDay: document.getElementById("day").value}); this.createDay(); }}>Neuer Tages Eintrag</button>
@@ -308,9 +413,11 @@ class Timekeeper extends React.Component {
                     <br/>
                     <div className="field_dates" id="hidden">
                        <label>Kommentar: </label>
-                        <textarea rows="2" cols="67" name="comment" id='comment' /> 
+                        <textarea rows="2" cols="67" maxLength={512} value={this.state.fields.comment} name="comment" id='comment' autoComplete="off" onChange={this.handleChange} /> 
+                        <div className="errorMsg">{this.state.errors.comment}</div>
                     </div>
                     <br/>
+                    <input type="submit" value="Eingaben Prüfen" className="button" /> 
                     <hr/>
                 </form>
             </div>
