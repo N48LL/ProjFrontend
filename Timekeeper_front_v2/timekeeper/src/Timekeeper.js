@@ -61,13 +61,13 @@ class Timekeeper extends React.Component {
 
         if (!fields["year"]) {
             formIsValid = false;
-            errors["year"] = "*Bitte geben Sie ein Jahr ein.";
+            errors["year"] = "Bitte geben Sie ein Jahr ein.";
         }
 
         if (typeof fields["year"] !== "undefined") {
             if (!fields["year"].match(/^[0-9]{4}$/)) {
                 formIsValid = false;
-                errors["year"] = "*Bitte geben Sie ein gültiges Jahr ein.";
+                errors["year"] = "Bitte geben Sie ein gültiges Jahr ein.";
             }
         }
 
@@ -392,7 +392,7 @@ class Timekeeper extends React.Component {
                         <div className="errorMsg">{this.state.errors.year}</div>
                     </div>
                     <div className="dates">
-                    <label>Monat</label>
+                    <label id="lbl_month">Monat</label>
                         <input type="text" id="month" name="month" list="todayMonth" autoComplete="off" value={this.state.fields.month} onChange={this.handleChange}/>
                         <datalist id="todayMonth">
                                 <option value={this.props.userInputMonth}>Heute: {setSingleDay()}.{this.props.userInputMonth}{this.props.userInputYear}</option>

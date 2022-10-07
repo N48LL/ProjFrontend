@@ -6,8 +6,6 @@ import NotFound from './NotFound';
 import React from 'react';
 import Layout from './Layout';
 
-     // TODO: need help for callback child<->parent or sibling<->sibling for selectedYear
-
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -15,7 +13,7 @@ class App extends React.Component {
     }
   }
 
-
+    // Outlet us not used - router only used for catching 404
   render(){
       return (
         <Routes>

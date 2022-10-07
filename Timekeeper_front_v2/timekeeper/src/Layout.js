@@ -1,8 +1,5 @@
 import './style/App.css';
-import { Routes, Route, Outlet, } from 'react-router-dom'
-import { render } from '@testing-library/react';
 import React from 'react';
-import App from './App';
 import GlobalNavigation from './GlobalNavigation';
 import Timekeeper from './Timekeeper';
 
@@ -27,6 +24,7 @@ export default class Layout extends React.Component {
 
     // main render function
     // passes <select> data(year/month) from parent to child
+    // Outlet us not used - router inly used for catching 404
     render() {
         return (
             <div className="App">
