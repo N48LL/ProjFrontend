@@ -7,7 +7,6 @@ class Timekeeper extends React.Component {
         super(props);
         this.state = {
             dataByMonth: typeof props.dataByMonth === 'undefined' ? [] : props.dataByMonth,
-            saveDay: typeof props.saveDay === 'undefined' ? [] : props.saveDay,
             timeSum: typeof props.timeSum === 'undefined' ? [] : props.timeSum,
             categories: typeof props.categories === 'undefined' ? [] : props.categories,
             catID: typeof props.catID === 'undefined' ? [] : props.catID,
@@ -16,13 +15,14 @@ class Timekeeper extends React.Component {
             fields: { year: '', month: '', day: '' },
             errors: { year: '', month: '', day: '' },
         };
-        this.saveDay = this.saveDay.bind(this);
         this.saveDayonEdit = this.saveDayonEdit.bind(this);
         this.updateId = this.updateId.bind(this);
 
         this.handleChange = this.handleChange.bind(this);
         this.submituserCreateNewForm = this.submituserCreateNewForm.bind(this);
     }
+    // TODO /time/{entrydateid}/delete -> delete entry
+    // Bearbeiten button -> edit Comment
 
 /**
  * 
@@ -100,16 +100,18 @@ class Timekeeper extends React.Component {
         // comment validation of max 512 Chars  -> @ inline texarea maxLength={512}
         // if day already exists validation -> @ createDay()
 
-        this.setState({
-            errors: errors
-        });
+    this.setState({
+        errors: errors
+    });
         return formIsValid;
     }
-
     updateId = (p) => {
         this.setState({ id: p });
         this.setState({ isHidden: true });
-      }
+    }
+    setEditId = (p) => { 
+        this.setState({ EditId: p });
+    }
 
 /**
  * 
@@ -203,29 +205,6 @@ class Timekeeper extends React.Component {
     }
 
     // edit a day and add amount to category
-    saveDay() {
-        const saveDay = {
-            category: document.getElementById("category").value,
-            amount: document.getElementById("amount").value,
-            entryDate: this.state.catID.id
-        };
-        fetch("http://localhost:8080/time/add", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(saveDay)
-        })
-            .then(response => response.json())
-            .then(data => {
-                this.setState(({ saveDay }) => {
-                    const tempsaveDay = [...saveDay];
-                    tempsaveDay.push(data);
-                    return { saveDay: tempsaveDay };
-                });
-                window.location.reload();
-            });
-    }
     saveDayonEdit() {
         const saveDayonEdit = {
             category: document.getElementById("category").value,
@@ -280,7 +259,7 @@ class Timekeeper extends React.Component {
                     <Button 
                             label="Bearbeiten" 
                             key={"edit_"+listIndex} 
-                            onClick={() => this.props.editTime(dataByMonth.id)} />
+                            onClick={() => {this.setEditId(dataByMonth.id)}} />
                         <hr></hr>
                         <button
                             className="btn_delete" 
@@ -314,7 +293,7 @@ class Timekeeper extends React.Component {
         }
         // function for the toggled add new time to day
         //TODO: switch um die Speicherbuttons indivieduell zu machen
-        function Edit({saveDay}, {saveDayonEdit}) {
+        function Edit({saveDayonEdit}) {
             return (
               <div className="default-container">
                 <form>
@@ -329,7 +308,6 @@ class Timekeeper extends React.Component {
                     </div>
                      
                 </form>
-                <Button label="Speichern für neuer Tag" onClick={saveDay} />
                 <Button label="Speichern für Hinzufügen" onClick={saveDayonEdit} />
               </div>
             );
@@ -363,8 +341,9 @@ class Timekeeper extends React.Component {
         // creating the final table
         return (
             <div className="Timekeeper">
+                <p>id from edit: {this.state.EditId} {this.state.editTime}</p>
                 <div className="EditHidden" id="EditHidden" hidden>
-                    <ToggleVisibility>{Edit({saveDay: this.saveDay}, {saveDayonEdit: this.saveDayonEdit})}</ToggleVisibility>
+                    <ToggleVisibility>{Edit({saveDayonEdit: this.saveDayonEdit})}</ToggleVisibility>
                     <Button label="Abbrechen" onClick={() => { toggle(); window.location.reload(); }} />
                 </div>
             <div className='CreateDay'>
