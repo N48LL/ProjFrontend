@@ -174,7 +174,6 @@ class Timekeeper extends React.Component {
                 });
             });
     }
-
     
     // create a day by user input
     // validate if day already exists
@@ -186,7 +185,7 @@ class Timekeeper extends React.Component {
             comment: document.getElementById("comment").value
         };
         let checkifExists = document.getElementById("year").value + "-" + document.getElementById("month").value + "-" + document.getElementById("day").value;
-        let tRows = this.state.dataByMonth.map((dataByMonth, listIndex)=>{
+        this.state.dataByMonth.map((dataByMonth, listIndex)=>{
             if (dataByMonth.date === checkifExists) {
                 alert("Dieser Tag existiert bereits!");
             } else if (listIndex === this.state.dataByMonth.length - 1) {
@@ -199,6 +198,7 @@ class Timekeeper extends React.Component {
         })
             .then(response => response.json())
     }
+        return newDay;
         });
     }
 
@@ -250,7 +250,6 @@ class Timekeeper extends React.Component {
             });
     }
 
-
 /**
  * 
  * Render
@@ -259,7 +258,7 @@ class Timekeeper extends React.Component {
     // this creates the table from fetched data
     render(){
         let timeSum = this.state.timeSum.length === 0 ? [] : this.state.timeSum;
-        let tRows = this.state.dataByMonth.map((dataByMonth, listIndex)=>{
+        let tableRows = this.state.dataByMonth.map((dataByMonth, listIndex)=>{
             const innerlist = dataByMonth.times.map((byCat, listIndex)=>{
                 return(
                     <li key={listIndex} >{byCat.category.category}: {byCat.amount}</li>
@@ -417,12 +416,12 @@ class Timekeeper extends React.Component {
                     </tr>
                 </thead>
                 <tbody>
-                    { tRows }
+                    { tableRows }
                 </tbody>
             </table>
         </div>
         );
     }
 }
-// sorry for spagetthi code... xD
+
 export default Timekeeper;
