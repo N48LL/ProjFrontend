@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import Button from "./Button";
 import './style/Timekeeper.css';
 
@@ -15,8 +15,6 @@ class Timekeeper extends React.Component {
             editTime: typeof props.editTime === 'undefined' ? [] : props.editTime,
             fields: { year: '', month: '', day: '' },
             errors: { year: '', month: '', day: '' },
-            id: "1",
-
         };
         this.saveDay = this.saveDay.bind(this);
         this.saveDayonEdit = this.saveDayonEdit.bind(this);
@@ -24,22 +22,22 @@ class Timekeeper extends React.Component {
 
         this.handleChange = this.handleChange.bind(this);
         this.submituserCreateNewForm = this.submituserCreateNewForm.bind(this);
-
     }
 
-    //////////////////Validation ///////////////////
-    // TODO: Fetching verlinken @alert
-
+/**
+ * 
+ * Validation
+ * Todo: Fetching verlinken @alert
+ * 
+ */
     handleChange(e) {
         let fields = this.state.fields;
         fields[e.target.name] = e.target.value;
         this.setState({
           fields
         });
-  
       }
   
-
       submituserCreateNewForm(e) {
         e.preventDefault();
         if (this.validateForm()) {
@@ -48,11 +46,15 @@ class Timekeeper extends React.Component {
             fields["month"] = "";
             fields["day"] = "";
             this.setState({fields:fields});
-            alert("Alle Eingaben sind korrekt!");
+            this.fetchID(
+                document.getElementById("year").value,
+                document.getElementById("month").value,
+                document.getElementById("day").value);
+            this.setState({newDay: document.getElementById("day").value});
+            this.createDay();
+            window.location.reload();
         }
       }
-
-
 
       validateForm() {
         let fields = this.state.fields;
@@ -95,8 +97,8 @@ class Timekeeper extends React.Component {
             }
         }
 
-        // comment validation of 512 @ inline texarea maxLength={512}
-
+        // comment validation of max 512 Chars  -> @ inline texarea maxLength={512}
+        // if day already exists validation -> @ createDay()
 
         this.setState({
             errors: errors
@@ -104,13 +106,16 @@ class Timekeeper extends React.Component {
         return formIsValid;
     }
 
-        /////////////////Ende Validation/////////////////
-
     updateId = (p) => {
         this.setState({ id: p });
         this.setState({ isHidden: true });
       }
 
+/**
+ * 
+ * Fetch from API
+ * 
+ */
     componentDidMount() {
         // fetch all data by month
         if (this.state.dataByMonth == null || this.state.dataByMonth.length === 0) {
@@ -197,8 +202,6 @@ class Timekeeper extends React.Component {
         });
     }
 
-
-
     // edit a day and add amount to category
     saveDay() {
         const saveDay = {
@@ -223,7 +226,6 @@ class Timekeeper extends React.Component {
                 window.location.reload();
             });
     }
-
     saveDayonEdit() {
         const saveDayonEdit = {
             category: document.getElementById("category").value,
@@ -249,9 +251,13 @@ class Timekeeper extends React.Component {
     }
 
 
+/**
+ * 
+ * Render
+ * 
+ */
     // this creates the table from fetched data
     render(){
-        const id = this.state.id;
         let timeSum = this.state.timeSum.length === 0 ? [] : this.state.timeSum;
         let tRows = this.state.dataByMonth.map((dataByMonth, listIndex)=>{
             const innerlist = dataByMonth.times.map((byCat, listIndex)=>{
@@ -277,10 +283,11 @@ class Timekeeper extends React.Component {
                             key={"edit_"+listIndex} 
                             onClick={() => this.props.editTime(dataByMonth.id)} />
                         <hr></hr>
-                        <Button 
+                        <button
+                            className="btn_delete" 
                             label="Löschen" 
                             key={"delete_"+listIndex} 
-                            onClick={() => this.removeDay(dataByMonth.id, listIndex)} />
+                            onClick={() => this.removeDay(dataByMonth.id, listIndex)} >Löschen</button>
                     </td>
                 </tr>
             );
@@ -295,23 +302,19 @@ class Timekeeper extends React.Component {
 
         //function to toogle and hidde Edit.js
         function ToggleVisibility({ children }) {
-              // React state to manage visibility
-            const [show, setShow] = useState();
 
-            // function to toggle the boolean value
-            function toggleShow() {
-                setShow(!show);
-            }
             function scrollTop() {
                 window.scrollTo(0, 0);
             }
+
             return (
                 <div className="component-container">
                 {children} {scrollTop()}
                 </div>
             );
         }
-        //TODO: switch um die Speicehrbuttons indivieduell zu machen
+        // function for the toggled add new time to day
+        //TODO: switch um die Speicherbuttons indivieduell zu machen
         function Edit({saveDay}, {saveDayonEdit}) {
             return (
               <div className="default-container">
@@ -333,15 +336,6 @@ class Timekeeper extends React.Component {
             );
           }
 
-        //function to set defaultValue of today
-       /* function setToday(){
-            let today = new Date();
-            let dd = String(today.getDate()).padStart(2, '0');
-            let mm = String(today.getMonth() + 1).padStart(2, '0');
-            let yyyy = today.getFullYear();
-            today = yyyy + '-' + mm + '-' + dd;
-            return today;
-        } */
         //function to set default single day
         function setSingleDay(){
             let today = new Date();
@@ -366,14 +360,8 @@ class Timekeeper extends React.Component {
                 document.getElementById("hide").style.display = "none";
             }
         }
-        //function to update state values
-        //function updateState(){
-          //  this.setState({newDay: document.getElementById("day").value});
-            //this.setState({newMonth: document.getElementById("month").value});
-            //this.setState({newYear: document.getElementById("year").value});
-        //}
 
-        // create table
+        // creating the final table
         return (
             <div className="Timekeeper">
                 <div className="EditHidden" id="EditHidden" hidden>
@@ -381,7 +369,6 @@ class Timekeeper extends React.Component {
                     <Button label="Abbrechen" onClick={() => { toggle(); window.location.reload(); }} />
                 </div>
             <div className='CreateDay'>
-                <br/>
                 <form method="post"  name="userRegistrationForm"  onSubmit= {this.submituserCreateNewForm}>
                     <div className="dates">
                         <label>Jahr</label>
@@ -408,16 +395,14 @@ class Timekeeper extends React.Component {
                         <div className="errorMsg">{this.state.errors.day}</div>
                     </div>
                     <div className="btn_dates" id='hide'>
-                    <button className='btn_create' type="button" onClick={() => { this.fetchID(document.getElementById("year").value, document.getElementById("month").value, document.getElementById("day").value); toggle(); this.setState({newDay: document.getElementById("day").value}); this.createDay(); }}>Neuer Tages Eintrag</button>
-                    </div>
                     <br/>
+                    <input type="submit" value="Tag Erstellen" className="submit" /> 
+                    </div>
                     <div className="field_dates" id="hidden">
                        <label>Kommentar: </label>
                         <textarea rows="2" cols="67" maxLength={512} value={this.state.fields.comment} name="comment" id='comment' autoComplete="off" onChange={this.handleChange} /> 
                         <div className="errorMsg">{this.state.errors.comment}</div>
                     </div>
-                    <br/>
-                    <input type="submit" value="Eingaben Prüfen" className="button" /> 
                     <hr/>
                 </form>
             </div>

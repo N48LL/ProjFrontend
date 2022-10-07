@@ -13,7 +13,7 @@ class App extends React.Component {
     }
   }
 
-    // Outlet us not used - router only used for catching 404
+    // <Outlet> is not used - router only used for catching 404 and for practice
   render(){
       return (
         <Routes>

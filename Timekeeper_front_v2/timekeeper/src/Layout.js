@@ -24,7 +24,7 @@ export default class Layout extends React.Component {
 
     // main render function
     // passes <select> data(year/month) from parent to child
-    // Outlet us not used - router inly used for catching 404
+    // Outlet us not used - router is only used for catching 404
     render() {
         return (
             <div className="App">

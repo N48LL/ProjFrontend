@@ -6,7 +6,6 @@
   box-sizing: border-box;
 }
 
-
 p {
     color: aqua;
 }
@@ -53,25 +52,42 @@ th {
     background-color: #636363;
     color: white;
   }
-  
+
   button {
-    background-color: #4CAF50; /* Green */
-    color: white;
-    padding: 10px;
-    margin: 3px 0;
-    border: none;
+    width: max-content;
+    padding: 8px;
+    margin: 4px;
+    display: inline;
+    background-color: #13aa52;
+    border: 1px solid #13aa52;
+    border-radius: 4px;
+    box-shadow: rgba(0, 0, 0, .1) 0 2px 4px 0;
+    box-sizing: border-box;
+    color: #fff;
     cursor: pointer;
-    width: 100%;
+    outline: none;
+    outline: 0;
     text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 12px;
+    transform: translateY(0);
+    transition: transform 150ms, box-shadow 150ms;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
   }
 
- .delete {
-    background-color:#ff0000;
-    color: #fff;
+  button:hover {
+    box-shadow: rgba(0, 0, 0, .15) 0 3px 9px 0;
+    transform: translateY(-2px);
   }
+
+ .btn_delete {
+    background-color:#ff0000;
+    border: 1px solid #ff0000;
+    color: #fff;
+    margin: 0;
+  }
+
+
 
 ul {
   margin: 0;
@@ -118,6 +134,37 @@ fieldset {
 select {
   display:block;
   margin: 4px;
+}
+
+.submit {
+  width: max-content;
+  display: inline;
+  background-color: #13aa52;
+  border: 1px solid #13aa52;
+  border-radius: 4px;
+  box-shadow: rgba(0, 0, 0, .1) 0 2px 4px 0;
+  box-sizing: border-box;
+  color: #fff;
+  cursor: pointer;
+  outline: none;
+  outline: 0;
+  text-align: center;
+  transform: translateY(0);
+  transition: transform 150ms, box-shadow 150ms;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.submit:hover {
+  box-shadow: rgba(0, 0, 0, .15) 0 3px 9px 0;
+  transform: translateY(-2px);
+}
+
+@media (min-width: 768px) {
+  .submit {
+    padding: 10px 30px;
+  }
 }
 
 label {
