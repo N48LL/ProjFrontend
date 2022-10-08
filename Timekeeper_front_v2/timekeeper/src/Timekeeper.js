@@ -176,6 +176,11 @@ class Timekeeper extends React.Component {
                 });
             });
     }
+    // remove all time entries of a day
+    removeAllTimeByDayId(dayId){
+        fetch("http://localhost:8080/time/" +dayId +"/delete", { method:"DELETE"})
+            .then(() => this.setState({ status: "Delete sucessful" }));
+    }
     
     // create a day by user input
     // validate if day already exists
@@ -265,7 +270,7 @@ class Timekeeper extends React.Component {
                             className="btn_delete" 
                             label="Löschen" 
                             key={"delete_"+listIndex} 
-                            onClick={() => this.removeDay(dataByMonth.id, listIndex)} >Löschen</button>
+                            onClick={() => { this.removeDay(dataByMonth.id, listIndex); this.removeAllTimeByDayId(dataByMonth) }} >Löschen</button>
                     </td>
                 </tr>
             );
