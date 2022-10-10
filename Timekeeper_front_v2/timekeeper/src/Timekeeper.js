@@ -1,6 +1,7 @@
 import React from "react";
 import Button from "./Button";
 import './style/Timekeeper.css';
+import EditDate from "./EditDate";
 
 class Timekeeper extends React.Component {
     constructor(props) {
@@ -112,6 +113,9 @@ class Timekeeper extends React.Component {
     setEditId = (p) => { 
         this.setState({ EditId: p });
     }
+    setEditComment = (p) => {
+        this.setState({ EditComment: p });
+    }
 
 /**
  * 
@@ -165,6 +169,7 @@ class Timekeeper extends React.Component {
             .then(data => this.setState({catID: data}))
     }
 
+
     // remove a day
     removeDay(dayId, listIndex){
         fetch("http://localhost:8080/date/delete/" +dayId, { method:"DELETE"})
@@ -189,13 +194,17 @@ class Timekeeper extends React.Component {
             year: document.getElementById("year").value,
             month: document.getElementById("month").value,
             day: document.getElementById("day").value,
-            comment: document.getElementById("comment").value
+            comment: document.getElementById("comment_newDate").value
         };
+                //if listindex of dataByMonth is empty create first day of month
+                if (this.state.dataByMonth.length === 0) {
+                    this.createDayIfEmpty();
+                } else {
         let checkifExists = document.getElementById("year").value + "-" + document.getElementById("month").value + "-" + document.getElementById("day").value;
         this.state.dataByMonth.map((dataByMonth, listIndex)=>{
-            if (dataByMonth.date === checkifExists) {
+            if (dataByMonth.date === checkifExists){
                 alert("Dieser Tag existiert bereits!");
-            } else if (listIndex === this.state.dataByMonth.length - 1) {
+            } else  {
         fetch("http://localhost:8080/date/add", {
             method: "POST",
             headers: {
@@ -204,9 +213,30 @@ class Timekeeper extends React.Component {
             body: JSON.stringify(newDay)
         })
             .then(response => response.json())
+            .then(data => this.setState({newDay: data}))
     }
         return newDay;
-        });
+        });}
+    }
+
+    // create first day if month empty
+    createDayIfEmpty() {
+        const newDay = {
+            year: document.getElementById("year").value,
+            month: document.getElementById("month").value,
+            day: "01",
+            comment: document.getElementById("comment_newDate").value
+        };
+        fetch("http://localhost:8080/date/add", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(newDay)
+        })
+            .then(response => response.json())
+            .then(data => this.setState({newDay: data}))
+        return newDay;
     }
 
     // edit a day and add amount to category
@@ -264,9 +294,9 @@ class Timekeeper extends React.Component {
                     <Button 
                             label="Bearbeiten" 
                             key={"edit_"+listIndex} 
-                            onClick={() => {this.setEditId(dataByMonth.id)}} />
+                            onClick={() => {toggleEditDate(); this.setEditId(dataByMonth.id); this.setEditComment(dataByMonth.comment)}} />
                         <hr></hr>
-                        <button
+                    <button
                             className="btn_delete" 
                             label="Löschen" 
                             key={"delete_"+listIndex} 
@@ -311,9 +341,9 @@ class Timekeeper extends React.Component {
                         <label>Zeit</label>
                         <input type="text" name="amount" id="amount" defaultValue="00:00:00"/>
                     </div>
-                     
                 </form>
-                <Button label="Speichern für Hinzufügen" onClick={saveDayonEdit} />
+                <Button label="Speichern" onClick={saveDayonEdit} />
+                <button className="btn_cancel" onClick={() => { toggle(); window.location.reload(); }} >Abbrechen</button>
               </div>
             );
           }
@@ -325,6 +355,21 @@ class Timekeeper extends React.Component {
             today = dd;
             return today;
         }
+        //function to set default month
+        function setMonth(){
+            let today = new Date();
+            let mm = String(today.getMonth() + 1).padStart(2, '0');
+            today = mm;
+            return today;
+        }
+        //function to set default year
+        function setYear(){
+            let today = new Date();
+            let yyyy = today.getFullYear();
+            today = yyyy;
+            return today;
+        }
+
 
         // function to toggle all the edit and create new stuff
         var hidden = true;
@@ -333,31 +378,54 @@ class Timekeeper extends React.Component {
             if(hidden){
                 document.getElementById("EditHidden").style.visibility = "hidden";
                 document.getElementById("EditHidden").style.display = "none";
-                document.getElementById("hide").style.visibility = "visible";
-                document.getElementById("hide").style.display = "block";
+                document.getElementById("CreateDay").style.visibility = "visible";
+                document.getElementById("CreateDay").style.display = "block";
             }else{
                 document.getElementById("EditHidden").style.visibility = "visible";
                 document.getElementById("EditHidden").style.display = "block";
-                document.getElementById("hide").style.visibility = "hidden";
-                document.getElementById("hide").style.display = "none";
+                document.getElementById("CreateDay").style.visibility = "hidden";
+                document.getElementById("CreateDay").style.display = "none";
             }
         }
+
+        // function to hide EditDate
+        var EditDateHidden = true;
+        function toggleEditDate() {
+            EditDateHidden = !EditDateHidden;
+            if(EditDateHidden){
+                document.getElementById("editDate_comp").style.visibility = "hidden";
+                document.getElementById("editDate_comp").style.display = "none";
+                document.getElementById("CreateDay").style.visibility = "visible";
+                document.getElementById("CreateDay").style.display = "block";
+            }else{
+                document.getElementById("editDate_comp").style.visibility = "visible";
+                document.getElementById("editDate_comp").style.display = "block";
+                document.getElementById("CreateDay").style.visibility = "hidden";
+                document.getElementById("CreateDay").style.display = "none";
+            }
+        }
+
+
+        // function 
 
         // creating the final table
         return (
             <div className="Timekeeper">
-                <p>id from edit: {this.state.EditId} {this.state.editTime}</p>
+                <div className="editDate_comp" id="editDate_comp" hidden>
+                    <EditDate date = {this.state.EditId} comment = {this.state.EditComment} />
+                    <br/>
+                    <button className="btn_cancel" onClick={() => { toggleEditDate(); window.location.reload(); }} >Abbrechen</button>
+                </div>
                 <div className="EditHidden" id="EditHidden" hidden>
                     <ToggleVisibility>{Edit({saveDayonEdit: this.saveDayonEdit})}</ToggleVisibility>
-                    <Button label="Abbrechen" onClick={() => { toggle(); window.location.reload(); }} />
                 </div>
-            <div className='CreateDay'>
-                <form method="post"  name="userRegistrationForm"  onSubmit= {this.submituserCreateNewForm}>
+            <div className='CreateDay' id="CreateDay">
+                <form method="post"  name="createNewDayForm"  onSubmit= {this.submituserCreateNewForm}>
                     <div className="dates">
                         <label>Jahr</label>
                         <input type="text" id="year" name="year" list="todayYear" autoComplete="off" value={this.state.fields.year} onChange={this.handleChange}/>
                             <datalist id="todayYear">
-                                <option value={this.props.userInputYear}>Heute: {setSingleDay()}.{this.props.userInputMonth}{this.props.userInputYear}</option>
+                                <option value={setYear()}>Heute: {setSingleDay()}.{this.props.userInputMonth}{this.props.userInputYear}</option>
                             </datalist>
                         <div className="errorMsg">{this.state.errors.year}</div>
                     </div>
@@ -365,7 +433,7 @@ class Timekeeper extends React.Component {
                     <label id="lbl_month">Monat</label>
                         <input type="text" id="month" name="month" list="todayMonth" autoComplete="off" value={this.state.fields.month} onChange={this.handleChange}/>
                         <datalist id="todayMonth">
-                                <option value={this.props.userInputMonth}>Heute: {setSingleDay()}.{this.props.userInputMonth}{this.props.userInputYear}</option>
+                                <option value={setMonth()}>Heute: {setSingleDay()}.{this.props.userInputMonth}{this.props.userInputYear}</option>
                             </datalist>
                         <div className="errorMsg">{this.state.errors.month}</div>
                     </div>
@@ -377,18 +445,18 @@ class Timekeeper extends React.Component {
                             </datalist>
                         <div className="errorMsg">{this.state.errors.day}</div>
                     </div>
-                    <div className="btn_dates" id='hide'>
+                    <div className="btn_dates">
                     <br/>
                     <input type="submit" value="Tag Erstellen" className="submit" /> 
                     </div>
                     <div className="field_dates" id="hidden">
                        <label>Kommentar: </label>
-                        <textarea rows="2" cols="67" maxLength={512} value={this.state.fields.comment} name="comment" id='comment' autoComplete="off" onChange={this.handleChange} /> 
+                        <textarea rows="2" cols="67" maxLength={512} value={this.state.fields.comment} name="comment_newDate" id='comment_newDate' autoComplete="off" onChange={this.handleChange} /> 
                         <div className="errorMsg">{this.state.errors.comment}</div>
                     </div>
-                    <hr/>
                 </form>
             </div>
+            <hr/>
             <table>
                 <thead>
                     <tr>
