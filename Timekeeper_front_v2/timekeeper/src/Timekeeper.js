@@ -13,17 +13,16 @@ class Timekeeper extends React.Component {
             catID: typeof props.catID === 'undefined' ? [] : props.catID,
             saveDayonEdit: typeof props.saveDayonEdit === 'undefined' ? [] : props.saveDayonEdit,
             editTime: typeof props.editTime === 'undefined' ? [] : props.editTime,
-            fields: { year: '', month: '', day: '' },
+            fields: { year: '', month: '', day: ''},
             errors: { year: '', month: '', day: '' },
         };
         this.saveDayonEdit = this.saveDayonEdit.bind(this);
         this.updateId = this.updateId.bind(this);
+        this.timeSum = this.timeSum.bind(this);
 
         this.handleChange = this.handleChange.bind(this);
         this.submituserCreateNewForm = this.submituserCreateNewForm.bind(this);
     }
-    // TODO /time/{entrydateid}/delete -> delete entry
-    // Bearbeiten button -> edit Comment
 
 /**
  * 
@@ -130,11 +129,7 @@ class Timekeeper extends React.Component {
                 .then(data => this.setState({dataByMonth: data}));
         }
         //fetch total amount for each day
-        if (this.state.timeSum == null || this.state.timeSum.length === 0) {
-            fetch("http://localhost:8080/date/" +this.props.userInputYear+ "/" +this.props.userInputMonth+ "/sum")
-                .then(response => response.json())
-                .then(data => this.setState({timeSum: data}));
-        }
+
         //fetch all categories for dropdown
         if (this.state.categories == null || this.state.categories.length === 0) {
             fetch("http://localhost:8080/category/all")
@@ -150,11 +145,7 @@ class Timekeeper extends React.Component {
                 .then(response => response.json())
                 .then(data => this.setState({dataByMonth: data}));
         }
-        if (this.props.userInputYear !== prevProps.userInputYear || this.props.userInputMonth !== prevProps.userInputMonth) {
-            fetch("http://localhost:8080/date/" +this.props.userInputYear+ "/" +this.props.userInputMonth+ "/sum")
-                .then(response => response.json())
-                .then(data => this.setState({timeSum: data}));
-        }
+
         if (this.state.newDay !== prevState.newDay) {
             fetch("http://localhost:8080/date/" +document.getElementById("year").value+ "/" +document.getElementById("month").value+ "/" +document.getElementById("day").value+ "/id")
                 .then(response => response.json())
@@ -183,8 +174,24 @@ class Timekeeper extends React.Component {
     }
     // remove all time entries of a day
     removeAllTimeByDayId(dayId){
-        fetch("http://localhost:8080/time/" +dayId +"/delete", { method:"DELETE"})
-            .then(() => this.setState({ status: "Delete sucessful" }));
+        try {
+            fetch("http://localhost:8080/time/delete/" +dayId, { method:"DELETE"})
+                this.setState(({ dataByMonth }) => {
+                    const tempDataByMonth = [...dataByMonth];
+                    return { dataByMonth: tempDataByMonth };
+                }
+            );
+        }
+        catch (e) {
+            console.log(e);
+        }
+    }
+
+    timeSum(id) {
+        fetch("http://localhost:8080/date/ " +id+ "/sum")
+            .then(response => response.json())
+            .then(data => this.setState({timeSum: data}));
+            return this.state.timeSum;
     }
     
     // create a day by user input
@@ -204,7 +211,7 @@ class Timekeeper extends React.Component {
         this.state.dataByMonth.map((dataByMonth, listIndex)=>{
             if (dataByMonth.date === checkifExists){
                 alert("Dieser Tag existiert bereits!");
-            } else  {
+            } else {
         fetch("http://localhost:8080/date/add", {
             method: "POST",
             headers: {
@@ -271,7 +278,6 @@ class Timekeeper extends React.Component {
  */
     // this creates the table from fetched data
     render(){
-        let timeSum = this.state.timeSum.length === 0 ? [] : this.state.timeSum;
         let tableRows = this.state.dataByMonth.map((dataByMonth, listIndex)=>{
             const innerlist = dataByMonth.times.map((byCat, listIndex)=>{
                 return(
@@ -279,11 +285,34 @@ class Timekeeper extends React.Component {
                 );
             });
 
-            // single row
+            const innerlistSum = dataByMonth.times.map((byCat, listIndex)=>{
+                // byCat.amount from HH:MM:SS to seconds
+                let time = byCat.amount.split(':');
+                let seconds = (+time[0]) * 60 * 60 + (+time[1]) * 60 + (+time[2]);
+                return(
+                    <li key={listIndex} >{seconds}</li>
+                );
+            });
+            // sum of innerlistsSum
+            let sum = 0;
+            for (let i = 0; i < innerlistSum.length; i++) {
+                sum += parseInt(innerlistSum[i].props.children);
+            }
+            // seconds to HH:MM:SS
+            let hours = Math.floor(sum / 3600);
+            let minutes = Math.floor((sum - (hours * 3600)) / 60);
+            let seconds = sum - (hours * 3600) - (minutes * 60);
+            // add 0 if minutes or seconds < 10
+            if (minutes < 10) {minutes = "0" + minutes;}
+            if (seconds < 10) {seconds = "0" + seconds;}
+            let timeSum = hours + ':' + minutes + 'h';
+
+
+            // single row of table
             return(
                 <tr key={dataByMonth.id}>
                     <td>{dataByMonth.date}</td>
-                    <td>{timeSum[listIndex]}</td>
+                    <td>{timeSum}</td>
                     <td><ul compact="compact">{innerlist}</ul></td>
                     <td>{dataByMonth.comment}</td>
                     <td>
@@ -300,7 +329,7 @@ class Timekeeper extends React.Component {
                             className="btn_delete" 
                             label="Löschen" 
                             key={"delete_"+listIndex} 
-                            onClick={() => { this.removeDay(dataByMonth.id, listIndex); this.removeAllTimeByDayId(dataByMonth) }} >Löschen</button>
+                            onClick={() => { this.removeDay(dataByMonth.id, listIndex); this.removeAllTimeByDayId(dataByMonth.id) }} >Löschen</button>
                     </td>
                 </tr>
             );
@@ -327,7 +356,6 @@ class Timekeeper extends React.Component {
             );
         }
         // function for the toggled add new time to day
-        //TODO: switch um die Speicherbuttons indivieduell zu machen
         function Edit({saveDayonEdit}) {
             return (
               <div className="default-container">
