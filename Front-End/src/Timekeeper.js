@@ -18,7 +18,6 @@ class Timekeeper extends React.Component {
         };
         this.saveDayonEdit = this.saveDayonEdit.bind(this);
         this.updateId = this.updateId.bind(this);
-        this.timeSum = this.timeSum.bind(this);
 
         this.handleChange = this.handleChange.bind(this);
         this.submituserCreateNewForm = this.submituserCreateNewForm.bind(this);
@@ -27,7 +26,6 @@ class Timekeeper extends React.Component {
 /**
  * 
  * Validation
- * Todo: Fetching verlinken @alert
  * 
  */
     handleChange(e) {
@@ -100,20 +98,11 @@ class Timekeeper extends React.Component {
         // comment validation of max 512 Chars  -> @ inline texarea maxLength={512}
         // if day already exists validation -> @ createDay()
 
+
     this.setState({
         errors: errors
     });
         return formIsValid;
-    }
-    updateId = (p) => {
-        this.setState({ id: p });
-        this.setState({ isHidden: true });
-    }
-    setEditId = (p) => { 
-        this.setState({ EditId: p });
-    }
-    setEditComment = (p) => {
-        this.setState({ EditComment: p });
     }
 
 /**
@@ -121,6 +110,20 @@ class Timekeeper extends React.Component {
  * Fetch from API
  * 
  */
+
+    updateId = (p) => {
+        this.setState({ id: p });
+        this.setState({ isHidden: true });
+    }
+
+    setEditId = (p) => { 
+        this.setState({ EditId: p });
+    }
+
+    setEditComment = (p) => {
+        this.setState({ EditComment: p });
+    }
+
     componentDidMount() {
         // fetch all data by month
         if (this.state.dataByMonth == null || this.state.dataByMonth.length === 0) {
@@ -185,13 +188,6 @@ class Timekeeper extends React.Component {
         catch (e) {
             console.log(e);
         }
-    }
-
-    timeSum(id) {
-        fetch("http://localhost:8080/date/ " +id+ "/sum")
-            .then(response => response.json())
-            .then(data => this.setState({timeSum: data}));
-            return this.state.timeSum;
     }
     
     // create a day by user input
