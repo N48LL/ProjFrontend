@@ -1,4 +1,5 @@
 import {fireEvent, render, screen} from '@testing-library/react';
+import EditDate from './EditDate';
 import Timekeeper from './Timekeeper';
 
 window.scrollTo = jest.fn();
@@ -12,24 +13,16 @@ describe("Tests for Timekeeper.js", () => {
       })
 
     test("Timekeeper should render Button", () => {
-        render(<Timekeeper/>);
+        render(<EditDate/>);
 
-        const linkElement = screen.getByText(/Neuer Eintrag/i);
+        const linkElement = screen.getByText(/Speichern/i);
         expect(linkElement).toBeInTheDocument();
-    });
-
-    test("Timekeeper should render Edit() on button click", () => {
-        render(<Timekeeper/>);
-
-        const button = screen.getByText(/Neuer Eintrag/i);
-        fireEvent.click(button);
-        expect(screen.getByText(/Speichern für neuer Tag/i)).toBeInTheDocument();
     });
 
     test("Timekeeper should render validation error for -> Year has no valid input value", () => {
         render(<Timekeeper/>);
 
-        const button = screen.getByText(/Eingaben Prüfen/i);
+        const button = screen.getByText(/Tag Erstellen/i);
 
         fireEvent.click(button);
         expect(screen.getByText(/Bitte geben Sie ein gültiges Jahr ein./i)).toBeInTheDocument();
